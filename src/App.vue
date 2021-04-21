@@ -1,26 +1,33 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <Amp />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Amp from "./components/Amp.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    Amp,
+  },
+};
 </script>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style>
+@font-face {
+  font-family: "Moyko";
+  src: url("~@/assets/fonts/Moyko.ttf") format("truetype");
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+  margin: 0;
+}
+body {
+  background-color: #ede9e1;
+  font-family: Moyko;
+  letter-spacing: 3px;
 }
 </style>

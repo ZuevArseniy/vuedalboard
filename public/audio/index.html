@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <audio id="player" controls></audio>
+    <script>
+        var audioContext = new AudioContext();
+    const player = document.getElementById('player');
+
+
+const handleSuccess = function(stream) {
+    var audioContext = new AudioContext();
+    const covertToMono = function(input) {
+    var splitter = audioContext.createChannelSplitter(2);
+    var merger = audioContext.createChannelMerger(2);
+
+    input.connect(splitter);
+    splitter.connect(merger, 0, 0);
+    splitter.connect(merger, 0, 1);
+    return merger;
+}
+  const sourceNode = audioContext.createMediaStreamSource(stream);
+  const audioinput = covertToMono(sourceNode);
+  const convolver = new ConvolverNode(audioContext);
+
+fetch('impulse.wav')
+  .then(response => response.arrayBuffer())
+  .then(buffer => {
+    audioContext.decodeAudioData(buffer, decoded => {
+    convolver.buffer = decoded;
+  })
+  .catch((err) => console.error(err));
+});
+const makeUpGain = new GainNode(audioContext, {
+  // Need to be adjusted to a particular IR.
+  gain: 5
+});
+
+const reverb = new ConvolverNode(audioContext);
+
+fetch('reverb2.wav')
+  .then(response => response.arrayBuffer())
+  .then(buffer => {
+    audioContext.decodeAudioData(buffer, decoded => {
+        reverb.buffer = decoded;
+  })
+  .catch((err) => console.error(err));
+});
+
+const makeUpGainReverb = new GainNode(audioContext, {
+  // Need to be adjusted to a particular IR.
+  gain: 5
+});
+
+var distortionGainNode = audioContext.createGain();
+var distortionNode = audioContext.createWaveShaper();
+
+// function makeDistortionCurve(amount) {
+//     var k = amount,
+//         n_samples = typeof sampleRate === 'number' ? sampleRate : 44100,
+//         curve = new Float32Array(n_samples),
+//         deg = Math.PI / 180,
+//         i = 0,
+//         x;
+//     for ( ; i < n_samples; ++i ) {
+//         x = i * 2 / n_samples - 1;
+//         curve[i] = (3 + k)*Math.atan(Math.sinh(x*0.25)*5) / (Math.PI + k * Math.abs(x));
+//     }
+//     return curve;
+// }
+
+function makeDistortionCurve(amount) {
+      var k = typeof amount === 'number' ? amount : 50,
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        deg = Math.PI / 180,
+        i = 0,
+        x;
+      for (; i < n_samples; ++i) {
+        x = (i * 2) / n_samples - 1;
+        curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+      }
+      return curve;
+    }
+
+distortionNode.curve = makeDistortionCurve(1000);
+distortionNode.oversample = '2x';
+
+  audioinput
+  //.connect(reverb)
+  //.connect(makeUpGainReverb)
+  .connect(distortionGainNode)
+  .connect(distortionNode)
+  .connect(convolver)
+  .connect(makeUpGain)
+  .connect(audioContext.destination); 
+  console.log(audioContext.baseLatency, audioContext.outputLatency);
+  navigator.mediaDevices.enumerateDevices().then((devices) => {
+  devices = devices.filter((d) => d.kind === 'audioinput');
+});
+
+};
+
+navigator.mediaDevices.getUserMedia({ audio: {
+            mandatory: {echoCancellation: false}
+        }, video: false })
+    .then(handleSuccess);
+    </script>
+</body>
+</html>
