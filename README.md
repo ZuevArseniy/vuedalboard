@@ -1,4 +1,4 @@
-# vuedalboard
+# vuedalboard (WORK IN PROGRESS)
 
 ## Project setup
 ```
