@@ -73,7 +73,7 @@ export default {
 <style lang="scss" scoped>
 
   .pedal {
-    width: 186px;
+    width: 170px;
     height: 320px;
     padding: 15px;
     border-radius: 10px;
@@ -83,6 +83,10 @@ export default {
     flex-direction: column;
     position: relative;
     box-sizing: content-box;
+    background-image: url('~@/assets/img/metal2.jpg');
+    background-size: 200px 350px;
+    background-repeat: no-repeat;
+    background-blend-mode: soft-light;
   }
 
   .pedal::after {

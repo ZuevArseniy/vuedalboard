@@ -15,13 +15,25 @@ export default {
       type: String,
       default: "label",
     },
+    type: {
+        type: String,
+        default: 'boss'
+    },
+    width: {
+        type: Number,
+        default: 75
+    },
+    height: {
+        type: Number,
+        default: 75
+    },
     defaultValue: {
       type: Number,
     },
   },
   computed: {
     sprite() {
-      return require("@/assets/img/boss.png");
+      return require(`@/assets/img/${this.type}.png`);
     },
   },
   methods: {
@@ -38,10 +50,10 @@ export default {
       :src="sprite"
       :min="min"
       :max="max"
-      step="0.1"
-      width="75"
+      :step="0.1"
+      :width="width"
       :value="defaultValue"
-      height="75"
+      :height="height"
       @input="onInput"
     ></webaudio-knob>
 

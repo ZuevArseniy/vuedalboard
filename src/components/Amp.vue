@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header @source="onSetSource" />
+    <Header :input="pedalboardIn" @source="onSetSource" />
     <Pedalboard :input="pedalboardIn" :output="pedalboardOut" />
   </div>
 </template>

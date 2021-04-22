@@ -1,8 +1,8 @@
 <template>
   <header>
     <div class="left-block">
-      <img class="logo" src="~@/assets/img/logo.png" />
-      <span class="title">PJAMP</span>
+      <img class="logo" src="~@/assets/img/input.png" />
+      <label for="">input</label>
     </div>
     <div class="dd-column">
       <label>Source</label>
@@ -19,8 +19,12 @@
 import ctx from "../web-audio/audio-context.js";
 
 export default {
-  name: "Header",
-  props: ["ctx1"],
+  props: {
+    input: {
+      type: AudioNode,
+      requied: true,
+    },
+  },
   data() {
     return {
       turnedOn: false,
@@ -31,7 +35,7 @@ export default {
       sampleSource: null,
     };
   },
-  mounted() {
+  created() {
     fetch("audio/demo.mp3")
       .then((response) => response.arrayBuffer())
       .then((arrayBuffer) => ctx.decodeAudioData(arrayBuffer))
@@ -42,11 +46,11 @@ export default {
   },
   methods: {
     toggle() {
+      ctx.resume();
       this.turnedOn = !this.turnedOn;
-      this.turnedOn ? ctx.resume() : ctx.suspend();
+      this.input.gain.setValueAtTime(Number(this.turnedOn), ctx.currentTime)
     },
     async selectSource(event) {
-      let source;
       if (event && event.target.value === "mic") {
         if (!this.inputStream) {
           this.inputStream = await navigator.mediaDevices.getUserMedia({
@@ -55,9 +59,11 @@ export default {
             },
             video: false,
           });
+
           this.inputSource = ctx.createMediaStreamSource(this.inputStream);
         }
-        source = this.inputSource;
+        this.sampleSource.disconnect(this.input)
+        this.inputStream.connect(this.input)
       } else {
         if (!this.sampleSource) {
           this.sampleSource = ctx.createBufferSource();
@@ -65,9 +71,12 @@ export default {
           this.sampleSource.loop = true;
           this.sampleSource.start();
         }
-        source = this.sampleSource;
+        if (this.inputStream) {
+            this.inputStream.disconnect(this.input)
+        }
+        this.sampleSource.connect(this.input)
       }
-      this.$emit("source", source);
+      
     },
   },
 };
@@ -81,16 +90,19 @@ header {
   height: 100px;
   display: flex;
   align-items: center;
-  font-size: 50px;
   box-sizing: content-box;
+  border: 15px solid black;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
 
   .left-block {
     display: flex;
     align-items: center;
-
+    flex-direction: column;
     .logo {
-      height: 100px;
-      width: 100px;
+      height: 50px;
+      width: 50px;
+      margin-bottom: 5px;
     }
     .title {
       font-size: 50px;
